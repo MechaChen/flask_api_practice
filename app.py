@@ -41,7 +41,7 @@ def books():
         if len(book_list) > 0:
             return jsonify(book_list)
         else:
-            'Nothing found', 404
+            return 'Nothing found', 404
 
     if request.method == 'POST':
         new_author = request.form['author']
@@ -59,6 +59,36 @@ def books():
         book_list.append(new_obj)
         return jsonify(book_list), 201
 
+
+@app.route('/book/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def single_book(id):
+    if request.method == 'GET':
+        for book in book_list:
+            if book['id'] == id:
+                return jsonify(book)
+            pass
+    
+    if request.method == 'PUT':
+        for book in book_list:
+            if book['id'] == id:
+                book['author'] = request.form['author']
+                book['language'] = request.form['language']
+                book['title'] = request.form['title']
+
+                updated_book = {
+                    'id': id,
+                    'author': book['author'],
+                    'language': book['language'],
+                    'title': book['title']
+                }
+
+                return jsonify(updated_book)
+
+    if request.method == 'DELETE':
+        for index, book in enumerate(book_list):
+            if book['id'] == id:
+                book_list.pop(index)
+                return jsonify(book_list), 200
 
 if __name__ == '__main__':
     app.run()
