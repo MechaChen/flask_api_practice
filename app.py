@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import sqlite3
+import pymysql
 
 app = Flask(__name__)
 
@@ -40,8 +40,15 @@ def db_connect():
     conn = None
 
     try:
-        conn = sqlite3.connect('books.sqlite')
-    except sqlite3.error as e:
+        conn = pymysql.connect(
+            host='sql6.freesqldatabase.com',
+            database='sql6690160',
+            user='sql6690160',
+            password='jWtPvCpvdH',
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor
+        )
+    except pymysql.Error as e:
         print(e)
     return conn
         
@@ -54,10 +61,7 @@ def books():
     if request.method == 'GET':
         cursor.execute('SELECT * FROM book')
 
-        books = [
-            dict(id=row[0], author=row[1], language=row[2], title=row[3])
-            for row in cursor.fetchall()
-        ]
+        books = cursor.fetchall()
 
         return jsonify(books)
 
@@ -66,8 +70,10 @@ def books():
         new_lang = request.form['language']
         new_title = request.form['title']
 
-        sql = """INSERT INTO book (author, language, title)
-                VALUES (?, ?, ?)"""
+        sql = """
+            INSERT INTO book (author, language, title)
+            VALUES (%s, %s, %s)
+        """
 
         cursor.execute(sql, (new_author, new_lang, new_title))
         conn.commit()
@@ -82,36 +88,30 @@ def single_book(id):
     book = None
 
     if request.method == 'GET':
-        sql = """SELECT * FROM book WHERE id=?"""
+        sql = """SELECT * FROM book WHERE id=%s"""
         cursor.execute(sql, (id,))
 
         row = cursor.fetchone()
-        row_dict = {
-            "id": row[0],
-            "author": row[1],
-            "language": row[2],
-            "title": row[3]
-        }
 
         if row is not None:
-            return jsonify(row_dict), 200
+            return jsonify(row), 200
         else:
             return "Book not found", 404
     
     if request.method == 'PUT':
         sql = """
             UPDATE book
-            SET author=?,
-                language=?,
-                title=?
-            WHERE id=?
+            SET author=%s,
+                language=%s,
+                title=%s
+            WHERE id=%s
         """
 
         author = request.form['author']
         language = request.form['language']
         title = request.form['title']
 
-        conn.execute(sql, (author, language, title, id))
+        cursor.execute(sql, (author, language, title, id))
         conn.commit()
 
         updated_book = {
@@ -125,7 +125,7 @@ def single_book(id):
 
 
     if request.method == 'DELETE':
-        sql = """DELETE FROM book WHERE id=?"""
+        sql = """DELETE FROM book WHERE id=%s"""
         cursor.execute(sql, (id,))
         conn.commit()
 
