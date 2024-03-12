@@ -3,39 +3,6 @@ import pymysql
 
 app = Flask(__name__)
 
-# book_list = [
-#   {
-#     "id": 1,
-#     "author": "J.K. Rowling",
-#     "language": "English",
-#     "title": "Harry Potter and the Philosopher's Stone"
-#   },
-#   {
-#     "id": 2,
-#     "author": "George Orwell",
-#     "language": "English",
-#     "title": "Nineteen Eighty-Four"
-#   },
-#   {
-#     "id": 3,
-#     "author": "Harper Lee",
-#     "language": "English",
-#     "title": "To Kill a Mockingbird"
-#   },
-#   {
-#     "id": 4,
-#     "author": "F. Scott Fitzgerald",
-#     "language": "English",
-#     "title": "The Great Gatsby"
-#   },
-#   {
-#     "id": 5,
-#     "author": "Gabriel García Márquez",
-#     "language": "Spanish",
-#     "title": "Cien años de soledad"
-#   }
-# ]
-
 def db_connect():
     conn = None
 
